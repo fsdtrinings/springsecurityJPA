@@ -18,8 +18,10 @@ public class MyUserDeatils implements UserDetails {
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		String authority = user.getRole();
-		return Arrays.asList(new SimpleGrantedAuthority(authority));
+		//String authority = user.getRole();
+		SimpleGrantedAuthority a = new SimpleGrantedAuthority(user.getRole());
+		return Arrays.asList(a);
+      
 	}
 	@Override
 	public String getPassword() {

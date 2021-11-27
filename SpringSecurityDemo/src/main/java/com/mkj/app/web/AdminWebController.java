@@ -12,16 +12,13 @@ import com.mkj.app.entity.RapipayEmployee;
 import com.mkj.app.repo.AppUserRepository;
 import com.mkj.app.repo.RapipayEmployeeRepository;
 
+
 @RestController
 @RequestMapping("/admin")
 public class AdminWebController {
 
 	@Autowired
-	private RapipayEmployeeRepository empRepo;
-	
-	@Autowired
-	private AppUserRepository userRepo;
-	
+	AppUserRepository repo;
 	
 	@GetMapping("/test")
 	public String homepage()
@@ -29,18 +26,11 @@ public class AdminWebController {
 		return "Admin can add user";
 	}
 	
-	
-	@PostMapping("/adduser")
-	public AppUsers addUsers(@RequestBody  AppUsers user)
+	@PostMapping("/create")
+	public String doAdd(@RequestBody AppUsers user)
 	{
-		return userRepo.save(user);
-	}
-	
-	
-	@PostMapping("/addemp")
-	public RapipayEmployee addEmp(@RequestBody  RapipayEmployee emp)
-	{
-		return empRepo.save(emp);
+		Object obj = repo.save(user);
+		return obj!=null?"Data Saved "+user : "Not Saved "+obj; 
 	}
 	
 }

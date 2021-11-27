@@ -17,6 +17,7 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 /*
 import org.springframework.context.annotation.*;
@@ -41,6 +42,40 @@ public class MyAppSecurityConfig extends WebSecurityConfigurerAdapter{
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		
+		/*
+		 * 1st Run :- execute app through csrf disable() 
+		 * csrf() disable does not validate the "post request" form unknown browser
+		 * 
+		 * 2nd time run :- comment csrf disable() and uncomment crsf() token code
+		 * 
+		 * our server validate all post requests coming from unknown source
+		 * in order to know the source Server save the token in the cookie
+		 * 
+		 * so make request along with header values which we can copy from 
+		 * cookie itself
+		 * 
+		 * copy value of XSRF-TOKEN which in my case is 62e83a19-3786-4a2f-8b70-7ae36bc6fb77
+		 *  save the value in header in key-value pair 
+		 *  
+		 *  key :- X-XSRF-TOKEN
+		 *  value :- 62e83a19-3786-4a2f-8b70-7ae36bc6fb77
+		 * 
+		 * 
+		 * */
+		
+		 http.
+		 	csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+		 	.and().
+		 	//csrf().disable().cors().disable().
+			authorizeRequests().
+
+			antMatchers("/public/**").permitAll().
+			antMatchers("/admin/**").hasAuthority("admin").
+			antMatchers("/employee/**").hasAnyAuthority("admin","employee").
+			
+			anyRequest().authenticated().and().httpBasic();
+		
+		/*
 		 http.
 		 	csrf().disable().cors().disable().
 			authorizeRequests().
@@ -49,18 +84,21 @@ public class MyAppSecurityConfig extends WebSecurityConfigurerAdapter{
 			antMatchers("/admin/**").hasRole("admin").
 			antMatchers("/employee/**").hasAnyRole("admin","employee").
 			
-			anyRequest().authenticated().and().httpBasic();
 			
-		
+		*/	
+			
+			/* http.authorizeRequests()
+	            .anyRequest().authenticated().and().formLogin();
+		*/
 	}
 
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		System.out.println("=============>> inside config method auth "+userDetailService);
-		//auth.userDetailsService(userDetailService);
+		
 		auth.authenticationProvider(authenticationProvider());
-		System.out.println(auth.toString());
+		
 	}
 
 	
@@ -77,25 +115,16 @@ public class MyAppSecurityConfig extends WebSecurityConfigurerAdapter{
     }
 	
 	 @Bean
-	    public DaoAuthenticationProvider authenticationProvider() {
+	 public DaoAuthenticationProvider authenticationProvider() {
 	        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 	        authProvider.setUserDetailsService(userDetailsService());
 	        authProvider.setPasswordEncoder(passwordEncoder());
 	         
 	        return authProvider;
-	    }
+	 }
 	
 	
-	 // For In Memory  
-	 
-		/*	
-	@Bean
-	public PasswordEncoder passwordEncoder()
-	{
-		//	return new BCryptPasswordEncoder();
-		return NoOpPasswordEncoder.getInstance();
-	}
-	*/
+	
 	
 	
 }//end class

@@ -25,6 +25,7 @@ public class AppUserServiceImpl implements UserDetailsService{
 	      UsernameNotFoundException {
 		
 		AppUsers user =  userRepo.getUsersByUsername(username);
+		System.out.println(" ");
 		System.out.println("--------Inside App User Service IMP ---------- ");
 		System.out.println(" Arg :- "+username);
 		System.out.println(" From Database "+user);
